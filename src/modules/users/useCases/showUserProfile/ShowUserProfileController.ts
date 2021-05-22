@@ -12,7 +12,7 @@ class ShowUserProfileController {
 
       return response.json(user);
     } catch (err) {
-      return response.status(404).json({ error: err });
+      return response.status(404).json({ error: "User does not exist!" });
     }
   }
 }

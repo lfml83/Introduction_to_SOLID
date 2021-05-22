@@ -1,0 +1,361 @@
+
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Atlas",
+        "description": "This is a documentation about Atlas API for user registration and management",
+        "version": "1.0.0",
+        "contact":{
+            "email": "luizfernandoleite@gmail.com"
+        }
+    },
+    "tags": [
+        {
+          "name": "Users",
+          "description": "User management"
+          }
+      ],
+    "paths" : {
+        "/users":{
+            "post": {
+                "tags": [ "Users"],
+                "summary": "Create a new user",
+                "requestBody": {
+                    "required": true,
+                    "content":{
+                        "application/json":{
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type":"string"
+                                    },
+                                    "email":{
+                                        "type":"string"
+                                    }
+                                },
+                                "example": {
+                                    "name": "Luiz Fernando",
+                                    "email": "lfml@gmail.com"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description" : "User successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema" : {
+                                        "type":"object",
+                                        "properties":{
+                                            "admin":{
+                                                "type": "boolean"
+                                                
+                                            },
+                                            "id" : {
+                                                "type": "string",
+                                                "format": "uuid"
+                                            },
+                                            "name":{
+                                                "type": "string"
+                                            },
+                                            "email":{
+                                                "type" : "string",
+                                                "format": "email"
+                                            },
+                                            "created_at" : {
+                                                "type" : "date",
+                                                "format":"date-time"
+                                            },
+                                            "updated_at": {
+                                                "type" : "date",
+                                                "format":"date-time"
+                                            }
+
+                                        },
+                                        "example":{
+
+                                            "id": "f2bc9358-35aa-49fc-81f6-0f224b0b31ba",
+                                            "admin": false,
+                                            "name": "Luiz Fernando",
+                                            "email":"lfml@gmail.com",
+                                            "created_at": "2021-05-18T12:33:06.432Z",
+                                            "updated_at": "2021-05-18T12:33:06.432Z"
+                                            
+                                        }
+                                    
+                                }
+                            }
+                        }
+
+                    },
+                    "400": {
+                        "description": "This email already exist",
+                        "content":{
+                            "application/json":{
+                                "schema" : {
+                                    "type":"object",
+                                    "properties":{
+                                        "error":{
+                                            "type": "string"
+                                        }
+
+                                    },
+                                    "example":{
+                                        "error": "This email already exist"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags":["Users"],
+                "summary" : "List all the users",
+                "description": "Only user admin can access",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "header",
+                        "description": "ID of an admin user",
+                        "required": true,
+                        "type": "string",
+                        "format": "uuid"
+                        
+
+                    }
+                ],
+                "responses":{
+                    "200": {
+                        "description": "Operation was successful!",
+                        "content":{
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/definitions/users"
+                                }
+                            }
+                        }
+                    },
+                    "400":{
+                        "description": "User not allowed",
+                        "content":{
+                            "application/json" :{
+                                "schema":{
+                                    "$ref":"#/definitions/notPermission"
+                                }
+                            }
+                        }
+                    }
+                }
+            }         
+        },
+        "/users/{user_id}": {
+            "get":{
+                "tags":["Users"],
+                "summary" : "Return a specific user",
+                "description" : "Receives an ID through the rout params and returns a JSON of the user",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "format": "uuid",
+                        "type": "string"
+                        
+    
+                    }
+                ],
+                "responses":{
+                    "200": {
+                        "description": "Operation was successful!",
+                        "content":{
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/definitions/users"
+                                }
+                            }
+                        }
+                    },
+                    "404":{
+                        "description": "User not found",
+                        "content":{
+                            "application/json" :{
+                                "schema":{
+                                    "$ref":"#/definitions/notFound"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        },
+        "/users/{user_id}/admin": {
+            "patch" : {
+                "tags":["Users"],
+                "summary": "Turns an user to an admin",
+                "description" : "Sends the user_id via route parameters and and becomes this user an admin",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "description": "Turns this ID an admin",
+                        "required": true,
+                        "format": "uuid",
+                        "type": "string"
+                        
+    
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"Operation was successful!",
+                        "content":{
+                            "application/json":{
+                                "schema":{
+                                    "$ref":"#/definitions/turnAdmin"
+                                }
+                            }
+                        }
+                    },
+                    "404":{
+                        "description": "User does not found",
+                        "content":{
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/definitions/UserDoesNotExist"
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
+
+    },
+    "definitions":{
+        "users" : {
+            "type": "array",
+            "items" : {
+                "type": "object",
+                "properties":{
+                    "admin":{
+                        "type": "boolean"
+                        
+                    },
+                    "id" : {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name":{
+                        "type": "string"
+                    },
+                    "email":{
+                        "type" : "string",
+                        "format": "email"
+                    },
+                    "created_at" : {
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "updated_at": {
+                        "type" : "string",
+                        "format" : "date-time"
+                    }
+                    
+                },
+                "example":
+                    {
+
+                    "admin": true,
+                    "id": "f2bc9358-35aa-49fc-81f6-0f224b0b31ba",
+                    "name": "Luiz Fernando",
+                    "email":"lfml@gmail.com",
+                    "created_at": "2021-05-18T12:33:06.432Z",
+                    "updated_at": "2021-05-18T12:33:06.432Z"     
+                }                    
+ 
+               
+            }
+            
+        },
+        "notPermission":{
+            "type":"object",
+            "properties":{
+                "error":{
+                    "type":"string"
+                }
+            },
+            "example":{
+                "error": "It's not possible to list users, just admin user can list!"
+            }
+        },
+        "notFound": {
+            "type":"object",
+            "properties":{
+                "error": {
+                    "type": "string"
+                }
+            },
+            "example" :{
+                "error" : "User does not exist!"
+            }
+        },
+        "turnAdmin":{
+            "type":"object",
+                "properties":{
+                    "admin":{
+                        "type": "boolean"
+                    },
+                    "id" : {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name":{
+                        "type": "string"
+                    },
+                    "email":{
+                        "type" : "string",
+                        "format": "email"
+                    },
+                    "created_at" : {
+                        "type" : "date",
+                        "format":"date-time"
+                    },
+                    "updated_at": {
+                        "type" : "date",
+                        "format":"date-time"
+                    }
+
+                },
+                "example":{
+
+                    "admin": true,
+                    "id": "f2bc9358-35aa-49fc-81f6-0f224b0b31ba",
+                    "name": "Luiz Fernando",
+                    "email":"lfml@gmail.com",
+                    "created_at": "2021-05-18T12:33:06.432Z",
+                    "updated_at": "2021-05-18T12:33:06.432Z"
+                    
+                }
+
+            
+        },
+        "UserDoesNotExist": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "error": "User does not exist!"
+            }
+          }
+    }
+
+}
